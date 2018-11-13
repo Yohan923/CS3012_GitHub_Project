@@ -17,7 +17,8 @@ class CreateDB:
         cur = db.cursor()
 
         cur.execute("CREATE TABLE repositories ("
-                    "id INT UNSIGNED NOT NULL,"
+                    "id INT UNSIGNED NOT NULL, "
+                    "owner VARCHAR(250) NOT NULL,"
                     "name VARCHAR(250) NOT NULL, "
                     "stars INT UNSIGNED NOT NULL, "
                     "forks INT UNSIGNED NOT NULL,"
