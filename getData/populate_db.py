@@ -7,7 +7,9 @@ class PopulateDB:
 
     def populate(self, db_name, auth, db_password):
 
-        f = open('info.txt', 'a')
+        f = open('info.txt', 'r')
+        stored_ids = f.readlines()
+        f.close()
 
         g = Github(auth)
 
@@ -18,34 +20,43 @@ class PopulateDB:
                              charset='utf8')
 
         cur = db.cursor()
-        limit = 0
         repos = list()
-        for repo in g.search_repositories("stars:>500", "stars", "desc"):
-            l = g.rate_limiting
-            if l[0] < 2:
-                time.sleep(150)
-            name = repo.name
-            id = repo.id
 
-            repos.append(id)
-            f.write(str(id)+"\n")
+        if len(stored_ids) != 100:
+            f = open('info.txt', 'w')
+            limit = 0
+            for repo in g.search_repositories("stars:>500", "stars", "desc"):
+                l = g.rate_limiting
+                if l[0] < 2:
+                    time.sleep(150)
+                name = repo.name
+                id = repo.id
 
-            owner = repo.owner
-            owner_name = owner.login
-            stars = repo.stargazers_count
-            forks = repo.forks_count
+                repos.append(id)
+                f.write(str(id) + "\n")
 
-            query = "INSERT INTO repositories(repository_id, owner, name, stars, forks) " + \
-                    "VALUES (%s, %s, %s, %s, %s)"
-            val = (id, owner_name, name, stars, forks)
-            cur.execute(query, val)
+                owner = repo.owner
+                owner_name = owner.login
+                stars = repo.stargazers_count
+                forks = repo.forks_count
 
-            limit += 1
-            if limit >= 100:
-                break
-        f.close()
+                query = "INSERT INTO repositories(repository_id, owner, name, stars, forks) " + \
+                        "VALUES (%s, %s, %s, %s, %s)"
+                val = (id, owner_name, name, stars, forks)
+                cur.execute(query, val)
+
+                limit += 1
+                if limit >= 100:
+                    break
+            db.commit()
+        else:
+            progress = open("test.txt", "r").readlines()
+            for i in range(max(0, len(progress) - 1), 100):
+                repos.append(int(stored_ids[i].replace("\n", "")))
 
         f = open('test.txt', 'a')
+        cur.execute("DELETE FROM contributor WHERE repository_id = " + str(repos[0]))
+        db.commit()
 
         for i in repos:
             f.write(str(i) + "\n")
@@ -65,5 +76,5 @@ class PopulateDB:
                         "VALUES (%s, %s, %s, %s, %s, %s)"
                 val = (c_id, i, c_login, c_contributions, c_location, c_company)
                 cur.execute(query, val)
-
-        db.commit()
+                db.commit()
+        f.close()
