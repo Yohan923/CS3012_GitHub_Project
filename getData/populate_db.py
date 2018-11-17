@@ -1,6 +1,7 @@
 from github import Github
 import MySQLdb
 import time
+import ssl
 
 
 class PopulateDB:
@@ -21,6 +22,28 @@ class PopulateDB:
 
         cur = db.cursor()
         repos = list()
+
+        """
+        import urllib.request
+        context = ssl._create_unverified_context()
+        contents = urllib.request.urlopen("https://api.github.com/repos/torvalds/linux/contributors&per_page=50", context=context).\
+            read()
+
+        d = g.get_repo(2325298).get_contributors()
+
+        for c in d:
+            c_id = c.id
+            c_login = c.login
+            c_contributions = c.contributions
+            c_location = c.location if c.location is not None else "N/A"
+            c_company = c.company if c.company is not None else "N/A"
+            query = "INSERT INTO contributor" + \
+                    "(contributor_id, repository_id, login, contribution, location, company)" + \
+                    "VALUES (%s, %s, %s, %s, %s, %s)"
+            val = (c_id, 9384267, c_login, c_contributions, c_location, c_company)
+            cur.execute(query, val)
+            db.commit()
+        """
 
         if len(stored_ids) != 100:
             f = open('info.txt', 'w')
@@ -50,16 +73,15 @@ class PopulateDB:
                     break
             db.commit()
         else:
-            progress = open("test.txt", "r").readlines()
-            for i in range(max(0, len(progress) - 1), 100):
+            f = open("test.txt", "r")
+            progress = f.readlines()
+            for i in range(len(progress), 100):
                 repos.append(int(stored_ids[i].replace("\n", "")))
+            f.close()
 
         f = open('test.txt', 'a')
-        cur.execute("DELETE FROM contributor WHERE repository_id = " + str(repos[0]))
-        db.commit()
 
         for i in repos:
-            f.write(str(i) + "\n")
             l = g.rate_limiting
             if l[0] < 10:
                 time.sleep(4000)
@@ -77,4 +99,5 @@ class PopulateDB:
                 val = (c_id, i, c_login, c_contributions, c_location, c_company)
                 cur.execute(query, val)
                 db.commit()
+            f.write(str(i) + "\n")
         f.close()
