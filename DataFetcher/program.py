@@ -13,6 +13,7 @@ def main(db_name, auth, db_password):
 
     PopulateDB().populate(db_name, auth, db_password)
 
+
 if __name__ == '__main__':
     import sys
 

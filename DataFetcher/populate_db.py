@@ -85,6 +85,8 @@ class PopulateDB:
             l = g.rate_limiting
             if l[0] < 10:
                 time.sleep(4000)
+            cur.execute("DELETE FROM contributor WHERE repository_id = "+str(i))
+            db.commit()
             repo = g.get_repo(i)
             contributors = repo.get_contributors()
             for c in contributors:
