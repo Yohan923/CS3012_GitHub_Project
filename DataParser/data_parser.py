@@ -32,27 +32,28 @@ class DataParser:
                 for j in repo_data:
                     total_contributions += j[1]
 
-                json.dump(
-                    {"name": repo_name,
-                     "top_1": repo_data[0][0],
-                     "top_1_value": int((repo_data[0][1] / total_contributions) * 10000),
-                     "top_2": repo_data[1][0],
-                     "top_2_value": int((repo_data[1][1] / total_contributions) * 10000),
-                     "top_3": repo_data[2][0],
-                     "top_3_value": int((repo_data[2][1] / total_contributions) * 10000),
-                     "top_4": repo_data[3][0],
-                     "top_4_value": int((repo_data[3][1] / total_contributions) * 10000),
-                     "top_5": repo_data[4][0],
-                     "top_5_value": int((repo_data[4][1] / total_contributions) * 10000)
-                     }, vis_data)
+                tmp = {"name": repo_name,
+                       "top_0": "",
+                       "top_0_value": 0,
+                       "top_1": "",
+                       "top_1_value": 0,
+                       "top_2": "",
+                       "top_2_value": 0,
+                       "top_3": "",
+                       "top_3_value": 0,
+                       "top_4": "",
+                       "top_4_value": 0
+                       }
+
+                for j in range(0, min(len(repo_data), 5)):
+                    tmp["top_"+str(j)] = repo_data[j][0]
+                    tmp["top_"+str(j)+"_value"] = int((repo_data[j][1] / total_contributions) * 10000)
+
+                json.dump(tmp, vis_data)
             else:
                 json.dump({"name": repo_name,
                            "note": "Contributor list was to big to retrieve through api"
                            }, vis_data)
 
-            repo_names.close()
-            vis_data.close()
-
-
-
-
+        repo_names.close()
+        vis_data.close()

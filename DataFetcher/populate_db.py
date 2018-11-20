@@ -8,7 +8,7 @@ class PopulateDB:
 
     def populate(self, db_name, auth, db_password):
 
-        f = open('info.txt', 'r')
+        f = open('repo_ids.txt', 'r')
         stored_ids = f.readlines()
         f.close()
 
@@ -23,30 +23,8 @@ class PopulateDB:
         cur = db.cursor()
         repos = list()
 
-        """
-        import urllib.request
-        context = ssl._create_unverified_context()
-        contents = urllib.request.urlopen("https://api.github.com/repos/torvalds/linux/contributors&per_page=50", context=context).\
-            read()
-
-        d = g.get_repo(2325298).get_contributors()
-
-        for c in d:
-            c_id = c.id
-            c_login = c.login
-            c_contributions = c.contributions
-            c_location = c.location if c.location is not None else "N/A"
-            c_company = c.company if c.company is not None else "N/A"
-            query = "INSERT INTO contributor" + \
-                    "(contributor_id, repository_id, login, contribution, location, company)" + \
-                    "VALUES (%s, %s, %s, %s, %s, %s)"
-            val = (c_id, 9384267, c_login, c_contributions, c_location, c_company)
-            cur.execute(query, val)
-            db.commit()
-        """
-
         if len(stored_ids) != 100:
-            f = open('info.txt', 'w')
+            f = open('repo_ids.txt', 'w')
             limit = 0
             for repo in g.search_repositories("stars:>500", "stars", "desc"):
                 l = g.rate_limiting
@@ -73,13 +51,13 @@ class PopulateDB:
                     break
             db.commit()
         else:
-            f = open("test.txt", "r")
+            f = open("progress.txt", "r")
             progress = f.readlines()
             for i in range(len(progress), 100):
                 repos.append(int(stored_ids[i].replace("\n", "")))
             f.close()
 
-        f = open('test.txt', 'a')
+        f = open('progress.txt', 'a')
 
         for i in repos:
             l = g.rate_limiting
