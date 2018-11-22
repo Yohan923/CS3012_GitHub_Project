@@ -74,21 +74,24 @@
     };
 
     let color = d3.scale.ordinal()
-        .domain(["Lorem ipsum", "dolor sit", "amet", "consectetur", "adipisicing", "elit", "sed", "do", "eiusmod", "tempor", "incididunt"])
-        .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+        .range(["#ea1717", "#ffe100", "#59ff00", "#00ffd8", "#f774df", "#6438af"]);
 
-    function randomData() {
-        let labels = color.domain();
+    function getData() {
+        let labels = [];
+        let values = [];
+        d3.json("data/repo_names.json",function (d) {
+            labels.push(d.name)
+        });
         return labels.map(function (label) {
             return {label: label, value: Math.random()}
         });
     }
 
-    change(randomData());
+    change(getData());
 
-    d3.select(".randomize")
-        .on("click", function () {
-            change(randomData());
+    d3.select("#repoSelector")
+        .on("change", function () {
+            change(getData());
         });
 
 

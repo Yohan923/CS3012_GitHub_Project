@@ -20,9 +20,12 @@ class DataParser:
         repo_names = open("../visualization/data/repo_names.json", "w")
         vis_data = open("../visualization/data/repo_info.json", "w")
 
+        repo_names_json = list()
+        vis_data_json = list()
+
         for i in result:
             repo_name = i[2] + "/" + i[3]
-            json.dump({"name": repo_name}, repo_names)
+            repo_names_json.append({"name": repo_name})
 
             cur.execute("SELECT login, contribution FROM contributor WHERE repository_id = " + str(i[1]))
             repo_data = cur.fetchall()
@@ -46,14 +49,17 @@ class DataParser:
                        }
 
                 for j in range(0, min(len(repo_data), 5)):
-                    tmp["top_"+str(j)] = repo_data[j][0]
-                    tmp["top_"+str(j)+"_value"] = int((repo_data[j][1] / total_contributions) * 10000)
+                    tmp["top_" + str(j)] = repo_data[j][0]
+                    tmp["top_" + str(j) + "_value"] = int((repo_data[j][1] / total_contributions) * 10000)
 
-                json.dump(tmp, vis_data)
+                vis_data_json.append(tmp)
             else:
-                json.dump({"name": repo_name,
-                           "note": "Contributor list was to big to retrieve through api"
-                           }, vis_data)
+                vis_data_json.append({"name": repo_name,
+                                      "note": "Contributor list was to big to retrieve through api"
+                                      })
+
+        json.dump(repo_names_json, repo_names)
+        json.dump(vis_data_json, vis_data)
 
         repo_names.close()
         vis_data.close()
