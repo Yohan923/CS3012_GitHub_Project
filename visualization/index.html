@@ -76,24 +76,48 @@
     let color = d3.scale.ordinal()
         .range(["#ea1717", "#ffe100", "#59ff00", "#00ffd8", "#f774df", "#6438af"]);
 
-    function getData() {
+    let repo_selector = d3.select("#repoSelector")
+        .on("change", function () {
+            change(getData(d3.select("#repoSelector").node().value));
+        });
+    
+    let repo_names;
+    d3.json("data/repo_names.json", function (d) {
+        repo_names = d;
+        repo_names.forEach(function (r) {
+            let option = repo_selector.append("option");
+            option.text(r.name)
+                .attr("value", r.name);
+            if (r.name === "freeCodeCamp/freeCodeCamp") option.attr("selected",true);
+        });
+    });
+
+    //load repo info
+    let repo_info;
+    d3.json("data/repo_info.json", function (d) {
+        repo_info = d;
+        change(getData(repo_selector.node().value));
+    });
+
+    function getData(repo_name) {
         let labels = [];
         let values = [];
-        d3.json("data/repo_names.json",function (d) {
-            labels.push(d.name)
-        });
+
+        for (let i = 0; i < repo_info.length; i++) {
+            if (repo_info[i].name === repo_name) {
+                labels.push(repo_info[i].top_0);
+                labels.push(repo_info[i].top_1);
+                labels.push(repo_info[i].top_2);
+                labels.push(repo_info[i].top_3);
+                labels.push(repo_info[i].top_4);
+                break;
+            }
+        }
+
         return labels.map(function (label) {
             return {label: label, value: Math.random()}
         });
     }
-
-    change(getData());
-
-    d3.select("#repoSelector")
-        .on("change", function () {
-            change(getData());
-        });
-
 
     function change(data) {
 
