@@ -34,6 +34,9 @@
 
 <body>
 <select id="repoSelector"></select>
+<h1>Contribution distribution for top starred repos on github</h1>
+<h5 id="contributorCount"></h5>
+<h5 id="starCount"></h5>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 
 <script>
@@ -103,20 +106,36 @@
         let labels = [];
         let values = [];
 
-        for (let i = 0; i < repo_info.length; i++) {
-            if (repo_info[i].name === repo_name) {
-                labels.push(repo_info[i].top_0);
-                labels.push(repo_info[i].top_1);
-                labels.push(repo_info[i].top_2);
-                labels.push(repo_info[i].top_3);
-                labels.push(repo_info[i].top_4);
-                break;
+        if (repo_name !== "torvalds/linux") {
+            for (let i = 0; i < repo_info.length; i++) {
+                if (repo_info[i].name === repo_name) {
+                    let acc = 0;
+                    for (let j = 0; j < 5; j++) {
+                        if (repo_info[i]["top_"+j] !== ""){
+                            let tmp_val = repo_info[i]["top_"+j+"_value"]/100;
+                            acc += tmp_val;
+                            values.push(tmp_val);
+                            labels.push(repo_info[i]["top_"+j] + " " + tmp_val.toFixed(2) + "%");
+                        }
+                    }
+
+                    values.push(100.0-acc);
+                    labels.push("remaining contributors" + " " + (100.0-acc).toFixed(2) + "%");
+                    break;
+                }
             }
+        }else {
+            labels.push("list too big to retrieve list through api");
+            values.push(100.00);
         }
 
-        return labels.map(function (label) {
-            return {label: label, value: Math.random()}
-        });
+        let tmp = [];
+
+        for (let i = 0; i < labels.length; i++) {
+            tmp.push({label: labels[i], value: values[i]})
+        }
+
+        return tmp;
     }
 
     function change(data) {

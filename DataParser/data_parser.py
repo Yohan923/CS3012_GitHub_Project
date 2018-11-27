@@ -14,7 +14,7 @@ class DataParser:
 
         cur = db.cursor()
 
-        cur.execute("SELECT * FROM repositories")
+        cur.execute("SELECT repository_id, owner, name, stars FROM repositories")
         result = cur.fetchall()
 
         repo_names = open("../visualization/data/repo_names.json", "w")
@@ -24,10 +24,10 @@ class DataParser:
         vis_data_json = list()
 
         for i in result:
-            repo_name = i[2] + "/" + i[3]
+            repo_name = i[1] + "/" + i[2]
             repo_names_json.append({"name": repo_name})
 
-            cur.execute("SELECT login, contribution FROM contributor WHERE repository_id = " + str(i[1]))
+            cur.execute("SELECT login, contribution FROM contributor WHERE repository_id = " + str(i[0]))
             repo_data = cur.fetchall()
             total_contributions = 0
 
@@ -36,6 +36,8 @@ class DataParser:
                     total_contributions += j[1]
 
                 tmp = {"name": repo_name,
+                       "stars": i[3],
+                       "total_contributors": len(repo_data),
                        "top_0": "",
                        "top_0_value": 0,
                        "top_1": "",
