@@ -57,6 +57,8 @@ class DataParser:
                 vis_data_json.append(tmp)
             else:
                 vis_data_json.append({"name": repo_name,
+                                      "stars": i[3],
+                                      "total_contributors": "∞",
                                       "note": "Contributor list was to big to retrieve through api"
                                       })
 

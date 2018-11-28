@@ -79,11 +79,19 @@
     let color = d3.scale.ordinal()
         .range(["#ea1717", "#ffe100", "#59ff00", "#00ffd8", "#f774df", "#6438af"]);
 
+    //selector element
     let repo_selector = d3.select("#repoSelector")
         .on("change", function () {
             change(getData(d3.select("#repoSelector").node().value));
         });
-    
+
+    //contirbuter count element
+    let contributor_counter = d3.select("#contributorCount");
+
+    //stars count element
+    let star_counter = d3.select("#starCount");
+
+    //load repo names
     let repo_names;
     d3.json("data/repo_names.json", function (d) {
         repo_names = d;
@@ -91,7 +99,7 @@
             let option = repo_selector.append("option");
             option.text(r.name)
                 .attr("value", r.name);
-            if (r.name === "freeCodeCamp/freeCodeCamp") option.attr("selected",true);
+            if (r.name === "freeCodeCamp/freeCodeCamp") option.attr("selected", true);
         });
     });
 
@@ -109,28 +117,33 @@
         if (repo_name !== "torvalds/linux") {
             for (let i = 0; i < repo_info.length; i++) {
                 if (repo_info[i].name === repo_name) {
+                    contributor_counter.text("Total Contributors = " + repo_info[i]["total_contributors"]);
+                    star_counter.text("Stars = " + repo_info[i]["stars"]);
+
+
                     let acc = 0;
                     for (let j = 0; j < 5; j++) {
-                        if (repo_info[i]["top_"+j] !== ""){
-                            let tmp_val = repo_info[i]["top_"+j+"_value"]/100;
+                        if (repo_info[i]["top_" + j] !== "") {
+                            let tmp_val = repo_info[i]["top_" + j + "_value"] / 100;
                             acc += tmp_val;
                             values.push(tmp_val);
-                            labels.push(repo_info[i]["top_"+j] + " " + tmp_val.toFixed(2) + "%");
+                            labels.push(repo_info[i]["top_" + j] + " " + tmp_val.toFixed(2) + "%");
                         }
                     }
 
-                    values.push(100.0-acc);
-                    labels.push("remaining contributors" + " " + (100.0-acc).toFixed(2) + "%");
+                    values.push(100.0 - acc);
+                    labels.push("remaining contributors" + " " + (100.0 - acc).toFixed(2) + "%");
                     break;
                 }
             }
-        }else {
+        } else {
+            contributor_counter.text("Total Contributors = ∞");
+            star_counter.text("Stars = 66366");
             labels.push("list too big to retrieve list through api");
             values.push(100.00);
         }
 
         let tmp = [];
-
         for (let i = 0; i < labels.length; i++) {
             tmp.push({label: labels[i], value: values[i]})
         }
