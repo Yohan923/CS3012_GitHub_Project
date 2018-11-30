@@ -114,33 +114,35 @@
         let labels = [];
         let values = [];
 
-        if (repo_name !== "torvalds/linux") {
-            for (let i = 0; i < repo_info.length; i++) {
-                if (repo_info[i].name === repo_name) {
-                    contributor_counter.text("Total Contributors = " + repo_info[i]["total_contributors"]);
-                    star_counter.text("Stars = " + repo_info[i]["stars"]);
+        for (let i = 0; i < repo_info.length; i++) {
+            let cur_repo = repo_info[i];
+            if (cur_repo.name === repo_name) {
+                if (cur_repo["note"] === undefined) {
+                    contributor_counter.text("Total Contributors = " + cur_repo["total_contributors"]);
+                    star_counter.text("Stars = " + cur_repo["stars"]);
 
 
                     let acc = 0;
                     for (let j = 0; j < 5; j++) {
-                        if (repo_info[i]["top_" + j] !== "") {
-                            let tmp_val = repo_info[i]["top_" + j + "_value"] / 100;
+                        if (cur_repo["top_" + j] !== "") {
+                            let tmp_val = cur_repo["top_" + j + "_value"] / 100;
                             acc += tmp_val;
                             values.push(tmp_val);
-                            labels.push(repo_info[i]["top_" + j] + " " + tmp_val.toFixed(2) + "%");
+                            labels.push(cur_repo["top_" + j] + " " + tmp_val.toFixed(2) + "%");
                         }
                     }
 
                     values.push(100.0 - acc);
                     labels.push("remaining contributors" + " " + (100.0 - acc).toFixed(2) + "%");
-                    break;
+                } else {
+                    contributor_counter.text("Total Contributors = " +
+                        "contributor list too large to retrieve list through api");
+                    star_counter.text("Stars = " + cur_repo["stars"]);
+                    labels.push(cur_repo["total_contributors"]);
+                    values.push(100.00);
                 }
+                break;
             }
-        } else {
-            contributor_counter.text("Total Contributors = ∞");
-            star_counter.text("Stars = 66366");
-            labels.push("list too big to retrieve list through api");
-            values.push(100.00);
         }
 
         let tmp = [];

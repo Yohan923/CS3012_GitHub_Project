@@ -3,7 +3,6 @@ from create_db import CreateDB
 
 
 def main(db_name, auth, db_password):
-
     # CreateDB().create_db(db_name, db_password)
 
     PopulateDB().populate(db_name, auth, db_password)
